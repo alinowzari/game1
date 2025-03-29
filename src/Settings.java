@@ -4,19 +4,22 @@ import java.awt.*;
 public class Settings extends JFrame {
 
     private GameMenu mainMenu;
-    private MusicPlayer musicPlayer;  // ✅ Reference to the music player
-
+    private MusicPlayer musicPlayer;       // ✅ Reference to the music player
     private JSlider volumeSlider;
     private JCheckBox saveHistoryCheckBox;
-    private boolean saveHistory = true;
 
-    public Settings(GameMenu mainMenu, MusicPlayer musicPlayer) {
+    // ✅ Reference to the global saveHistory flag
+    private boolean saveHistory;
+
+    public Settings(GameMenu mainMenu, MusicPlayer musicPlayer, boolean saveHistory) {
         this.mainMenu = mainMenu;
-        this.musicPlayer = musicPlayer;  // ✅ Store the music player
+        this.musicPlayer = musicPlayer;
+        this.saveHistory = saveHistory;    // ✅ Initialize with current setting
+
         setTitle("Settings");
         setSize(600, 400);
         setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
-        setLocationRelativeTo(null);  // Center the window
+        setLocationRelativeTo(null);
         initSettings();
         setVisible(true);
     }
@@ -29,13 +32,14 @@ public class Settings extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
+        // ✅ Volume label
         JLabel volumeLabel = createLabel("Volume:");
         gbc.gridx = 0;
         gbc.gridy = 0;
         settingsPanel.add(volumeLabel, gbc);
 
-        // Create the volume slider (0-100 range)
-        volumeSlider = new JSlider(0, 100, 50);  // Default volume set to 50%
+        // ✅ Volume slider
+        volumeSlider = new JSlider(0, 100, (int) (musicPlayer.getVolume() * 100));  // Get current volume
         volumeSlider.setBackground(Color.BLACK);
         volumeSlider.setForeground(Color.WHITE);
         volumeSlider.setMajorTickSpacing(25);
@@ -43,28 +47,26 @@ public class Settings extends JFrame {
         volumeSlider.setPaintTicks(true);
         volumeSlider.setPaintLabels(true);
 
-        // Add a change listener to adjust the volume
         volumeSlider.addChangeListener(e -> {
-            int sliderValue = volumeSlider.getValue();  // Get the current slider value
-            float volume = sliderValue / 100.0f;  // Convert to range 0.0 - 1.0
-            musicPlayer.setVolume(volume);  // Update the volume in MusicPlayer
+            int sliderValue = volumeSlider.getValue();
+            float volume = sliderValue / 100.0f;
+            musicPlayer.setVolume(volume);
         });
 
         gbc.gridx = 1;
         settingsPanel.add(volumeSlider, gbc);
 
-        // Checkbox for save history
-        saveHistoryCheckBox = new JCheckBox("Save Player History", true);
+        // ✅ Save history checkbox
+        saveHistoryCheckBox = new JCheckBox("Save Player History", saveHistory);
         saveHistoryCheckBox.setBackground(Color.BLACK);
         saveHistoryCheckBox.setForeground(Color.WHITE);
         saveHistoryCheckBox.setFont(new Font("Arial", Font.BOLD, 18));
-
         gbc.gridx = 0;
         gbc.gridy = 1;
         gbc.gridwidth = 2;
         settingsPanel.add(saveHistoryCheckBox, gbc);
 
-        // Button panel
+        // ✅ Button panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.BLACK);
 
@@ -89,7 +91,13 @@ public class Settings extends JFrame {
     private void returnToMenu() {
         dispose();
         mainMenu.setVisible(true);
-        musicPlayer.play();  // ✅ Resume music when returning
+    }
+
+    private void applySettings() {
+        // ✅ Update the global saveHistory flag
+        saveHistory = saveHistoryCheckBox.isSelected();
+        mainMenu.setSaveHistory(saveHistory);  // ✅ Update in GameMenu
+        JOptionPane.showMessageDialog(this, "Settings Applied!");
     }
 
     private JLabel createLabel(String text) {
@@ -105,10 +113,5 @@ public class Settings extends JFrame {
         button.setForeground(Color.RED);
         button.setFocusPainted(false);
         button.setFont(new Font("Arial", Font.BOLD, 14));
-    }
-
-    private void applySettings() {
-        saveHistory = saveHistoryCheckBox.isSelected();
-        JOptionPane.showMessageDialog(this, "Settings Applied!");
     }
 }

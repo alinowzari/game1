@@ -6,7 +6,7 @@ public class MusicPlayer {
 
     private Clip clip;
     private boolean isPlaying = false;
-    private FloatControl volumeControl;
+    private float volume = 0.5f;  // ✅ Store current volume
 
     public MusicPlayer(String filePath) {
         try {
@@ -19,9 +19,7 @@ public class MusicPlayer {
             AudioInputStream audioStream = AudioSystem.getAudioInputStream(audioFile);
             clip = AudioSystem.getClip();
             clip.open(audioStream);
-
-            // Get the volume control
-            volumeControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+            setVolume(volume);  // ✅ Apply default volume on startup
 
         } catch (UnsupportedAudioFileException | IOException | LineUnavailableException e) {
             e.printStackTrace();
@@ -54,19 +52,26 @@ public class MusicPlayer {
         }
     }
 
+    // ✅ Set volume method
+    public void setVolume(float volume) {
+        this.volume = volume;  // Store the current volume
+
+        if (clip != null) {
+            FloatControl gainControl = (FloatControl) clip.getControl(FloatControl.Type.MASTER_GAIN);
+
+            // Convert volume to decibels (range -80 to 6 dB)
+            float dB = (float) (Math.log(volume) / Math.log(10.0) * 20.0);
+            gainControl.setValue(Math.max(gainControl.getMinimum(), Math.min(dB, gainControl.getMaximum())));
+        }
+    }
+
+    // ✅ Get current volume
+    public float getVolume() {
+        return volume;  // Return the stored volume
+    }
+
     // ✅ Check if the music is playing
     public boolean isPlaying() {
         return isPlaying;
-    }
-
-    // ✅ Method to set the volume (range 0.0f to 1.0f)
-    public void setVolume(float volume) {
-        if (volumeControl != null) {
-            float min = volumeControl.getMinimum();
-            float max = volumeControl.getMaximum();
-            float range = max - min;
-            float volumeValue = min + (range * volume);  // Scale volume
-            volumeControl.setValue(volumeValue);  // Set the volume
-        }
     }
 }

@@ -1,19 +1,25 @@
 import javax.swing.*;
 import java.awt.*;
+import java.util.HashMap;
 
 public class GameMenu extends JFrame {
     private MusicPlayer musicPlayer;
-    public GameMenu() {
+    public HashMap<String, String> players;
+    private boolean saveHistory = true;  // ✅ Flag to track if history should be saved
+
+    public GameMenu(HashMap<String, String> players) {
+        this.players = players;
+
         setTitle("Super Hexagon");
         setSize(800, 600);
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        setLocationRelativeTo(null);  // Center the window
+        setLocationRelativeTo(null);
         initMenu();
+
+        // ✅ Initialize Music Player
         musicPlayer = new MusicPlayer("background.wav");
-        String musicFilePath="background.wav";
-        System.out.println("Loading music from: " + musicFilePath);
-// Path to the audio file
         musicPlayer.play();
+
         setVisible(true);
     }
 
@@ -36,20 +42,21 @@ public class GameMenu extends JFrame {
 
         // ✅ Start Game Button
         JButton startButton = new JButton("Start Game");
-        this.styleButton(startButton);
+        styleButton(startButton);
+        startButton.addActionListener(e -> openStartGameMenu());
         gbc.gridy = 1;
         menuPanel.add(startButton, gbc);
 
-        // ✅ Settings Button - Switch to Settings Frame
+        // ✅ Settings Button
         JButton settingsButton = new JButton("Settings");
-        this.styleButton(settingsButton);
-        settingsButton.addActionListener(e -> openSettings());  // 🔥 Switch to settings
+        styleButton(settingsButton);
+        settingsButton.addActionListener(e -> openSettings());
         gbc.gridy = 2;
         menuPanel.add(settingsButton, gbc);
 
         // ✅ Exit Button
         JButton exitButton = new JButton("Exit");
-        this.styleButton(exitButton);
+        styleButton(exitButton);
         exitButton.addActionListener(e -> System.exit(0));
         gbc.gridy = 3;
         menuPanel.add(exitButton, gbc);
@@ -57,13 +64,20 @@ public class GameMenu extends JFrame {
         add(menuPanel);
     }
 
-    // ✅ Open settings with a reference to the current menu
-    private void openSettings() {
-        this.setVisible(false);         // 🔥 Hide the menu
-        new Settings(this, musicPlayer);             // ✅ Pass this instance to the settings
+    // ✅ Save history setter method
+    public void setSaveHistory(boolean saveHistory) {
+        this.saveHistory = saveHistory;
     }
 
-    // 🔥 Button styling method
+    public boolean isSaveHistory() {
+        return saveHistory;
+    }
+
+    private void openSettings() {
+        this.setVisible(false);
+        new Settings(this, musicPlayer, saveHistory);
+    }
+
     private void styleButton(JButton button) {
         button.setPreferredSize(new Dimension(200, 50));
         button.setBackground(Color.DARK_GRAY);
@@ -72,9 +86,8 @@ public class GameMenu extends JFrame {
         button.setFont(new Font("Arial", Font.BOLD, 18));
     }
 
-    // ✅ Main method to run the game menu
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(GameMenu::new);
+    private void openStartGameMenu() {
+        this.setVisible(false);
+        new StartGameMenu(this, players, saveHistory);
     }
 }
-
