@@ -4,17 +4,17 @@ import java.awt.*;
 public class Settings extends JFrame {
 
     private GameMenu mainMenu;
-    private MusicPlayer musicPlayer;       // ✅ Reference to the music player
+    private MusicPlayer musicPlayer;  // This may be null
     private JSlider volumeSlider;
     private JCheckBox saveHistoryCheckBox;
 
-    // ✅ Reference to the global saveHistory flag
+    // Reference to the global saveHistory flag
     private boolean saveHistory;
 
     public Settings(GameMenu mainMenu, MusicPlayer musicPlayer, boolean saveHistory) {
         this.mainMenu = mainMenu;
         this.musicPlayer = musicPlayer;
-        this.saveHistory = saveHistory;    // ✅ Initialize with current setting
+        this.saveHistory = saveHistory;
 
         setTitle("Settings");
         setSize(600, 400);
@@ -32,31 +32,38 @@ public class Settings extends JFrame {
         gbc.insets = new Insets(10, 10, 10, 10);
         gbc.fill = GridBagConstraints.HORIZONTAL;
 
-        // ✅ Volume label
+        // Volume label
         JLabel volumeLabel = createLabel("Volume:");
         gbc.gridx = 0;
         gbc.gridy = 0;
         settingsPanel.add(volumeLabel, gbc);
 
-        // ✅ Volume slider
-        volumeSlider = new JSlider(0, 100, (int) (musicPlayer.getVolume() * 100));  // Get current volume
-        volumeSlider.setBackground(Color.BLACK);
-        volumeSlider.setForeground(Color.WHITE);
-        volumeSlider.setMajorTickSpacing(25);
-        volumeSlider.setMinorTickSpacing(5);
-        volumeSlider.setPaintTicks(true);
-        volumeSlider.setPaintLabels(true);
+        // Volume slider (only enabled if musicPlayer is not null)
+        if (musicPlayer != null) {
+            volumeSlider = new JSlider(0, 100, (int) (musicPlayer.getVolume() * 100)); // Get current volume
+            volumeSlider.setBackground(Color.BLACK);
+            volumeSlider.setForeground(Color.WHITE);
+            volumeSlider.setMajorTickSpacing(25);
+            volumeSlider.setMinorTickSpacing(5);
+            volumeSlider.setPaintTicks(true);
+            volumeSlider.setPaintLabels(true);
 
-        volumeSlider.addChangeListener(e -> {
-            int sliderValue = volumeSlider.getValue();
-            float volume = sliderValue / 100.0f;
-            musicPlayer.setVolume(volume);
-        });
+            volumeSlider.addChangeListener(e -> {
+                int sliderValue = volumeSlider.getValue();
+                float volume = sliderValue / 100.0f;
+                musicPlayer.setVolume(volume);
+            });
 
-        gbc.gridx = 1;
-        settingsPanel.add(volumeSlider, gbc);
+            gbc.gridx = 1;
+            settingsPanel.add(volumeSlider, gbc);
+        } else {
+            // If musicPlayer is null, show a message instead of a volume slider
+            JLabel noMusicLabel = createLabel("Music is disabled.");
+            gbc.gridx = 1;
+            settingsPanel.add(noMusicLabel, gbc);
+        }
 
-        // ✅ Save history checkbox
+        // Save history checkbox
         saveHistoryCheckBox = new JCheckBox("Save Player History", saveHistory);
         saveHistoryCheckBox.setBackground(Color.BLACK);
         saveHistoryCheckBox.setForeground(Color.WHITE);
@@ -66,7 +73,7 @@ public class Settings extends JFrame {
         gbc.gridwidth = 2;
         settingsPanel.add(saveHistoryCheckBox, gbc);
 
-        // ✅ Button panel
+        // Button panel
         JPanel buttonPanel = new JPanel();
         buttonPanel.setBackground(Color.BLACK);
 
@@ -94,9 +101,9 @@ public class Settings extends JFrame {
     }
 
     private void applySettings() {
-        // ✅ Update the global saveHistory flag
+        // Update the global saveHistory flag
         saveHistory = saveHistoryCheckBox.isSelected();
-        mainMenu.setSaveHistory(saveHistory);  // ✅ Update in GameMenu
+        mainMenu.setSaveHistory(saveHistory);  // Update in GameMenu
         JOptionPane.showMessageDialog(this, "Settings Applied!");
     }
 

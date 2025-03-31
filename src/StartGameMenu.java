@@ -6,10 +6,10 @@ public class StartGameMenu extends JFrame {
 
     private GameMenu mainMenu;
     private JTextField nameField;                  // ✅ Text field for the player's name
-    public HashMap<String, String> players;// ✅ HashMap to store player names and history
+    public HashMap<String, PlayerStats> players;// ✅ HashMap to store player names and history
     private boolean saveHistory;
 
-    public StartGameMenu(GameMenu mainMenu, HashMap<String, String> players,  boolean saveHistory) {
+    public StartGameMenu(GameMenu mainMenu, HashMap<String, PlayerStats> players,  boolean saveHistory) {
         this.mainMenu = mainMenu;
         this.players = players;
         this.saveHistory = saveHistory;
@@ -78,7 +78,7 @@ public class StartGameMenu extends JFrame {
         }
 
         if (saveHistory) {
-            players.put(playerName, "New Game Started");
+            players.put(playerName, new PlayerStats());
             System.out.println("Saving history for: " + playerName);
         } else {
             System.out.println("Not saving history.");
